@@ -80,8 +80,8 @@
     -webkit-transition: -webkit-transform 0.3s ease-out;
   }
   .slides.layout-widescreen > article {
-    margin-left: -550px;
-    width: 1100px;
+    /* margin-left: -550px;
+    width: 1500px; */
   }
   .slides.layout-faux-widescreen > article {
     margin-left: -550px;
@@ -397,6 +397,7 @@ code {
   font-family: 'Droid Sans Mono', 'Courier New', monospace;
 
   color: black;
+  background-color: #d3d3d3;
 }
 
 article > .image,
@@ -556,4 +557,13 @@ figcaption {
   -o-border-radius: 10px;
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;
+}
+
+.slide-area {
+  display: none;
+}
+
+.emphasize {
+  color: red;
+  font-weight: bold;
 }

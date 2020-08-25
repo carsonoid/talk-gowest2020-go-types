@@ -1,0 +1,267 @@
+# All Types of Go Types
+
+GoWest 2020
+
+Carson Anderson
+DevX Engineer, Weave
+@carson_ops
+
+## Questions I Had About Go Types
+
+* How big is a bool?
+* How big is an `int`?
+* What type is a `constant`?s
+* How big is an empty `struct`?
+* What type is a `LABEL`?
+* Are all `nil`s identical?
+* What happens when I pass a `slice`?
+* When should I pass a `struct` vs `pointer`?
+
+## What's in a bool?
+
+.play examples/ints.go /^func main/,/^}
+
+## Int Types
+
+.html /html/ints.html
+
+## Int Types
+
+.html /html/ints-focus.html
+
+## intXX Size Proof
+
+.play examples/ints.go /^func main/,/^}
+
+## uintXX Size Proof
+
+.play examples/ints.go /^func main/,/^}
+
+## But what about plain old `int`?
+
+.play examples/int.go /^func main/,/^}
+
+## Int Size Depends on compile architecture
+
+* 32 bit for 32 bit systems
+* 64 bit for 64 bit systems
+
+## Which one do I use?
+
+* int is suggested for most cases
+* intXX for data int for everything else
+
+## A Note on Sizes
+
+The architecture size is also called "word" length
+
+* There will be many other cases where variable sizes change based
+on word length
+* All of the examples and size here are for `GOARCH=amd64` an 8 byte (64 bit) word length
+
+## Floats
+
+Talk about `floatXX` constants vs variables and `==` behavior
+
+.play examples/floats.go /^func main/,/^}
+
+## Float Math - Variables
+
+Float variables have arbitrary precision
+
+.play examples/floats-math-vars.go /^func main/,/^}
+
+## Float Math - Constants
+
+.play examples/floats-math-const.go /^func main/,/^}
+
+## Complex Numbers
+
+Really?
+
+## Bytes
+
+Go has a raw data type called `byte` this is actually an alias to the `uint8` type.
+
+Bytes are most commonly used under the hood for strings and
+other IO operations we will talk about later
+
+But it is possible to create constants and variables of the byte type which hold ASCII characters.
+
+```go
+var numberFromOctal byte = 01
+var numberFromHex byte = 0x1
+var numberReadable byte = 1_00
+var letter byte = 'c'
+```
+
+## Arrays
+
+Arrays are swaths of contiguous memory for a specific type. They have a fixed length
+and their length cannot be changed after initialization.
+
+## Slices
+
+Slices are a convenience layer on top of arrays, but they are backed by arrays.
+
+Slices really have **two sizes**, the size of the `sliceHeader` and the size of the underlying `array`
+
+When you pass a slice around, you pass a copy of the `sliceHeader` which is essentially a 3-word length
+struct that is completely hidden by the language.
+
+Each slice header can be thought of like a struct with the following composition:
+
+```go
+type sliceHeader struct {
+    ptr *[]Elem
+    len int
+    cap int
+}
+```
+
+## Slices - Sizes
+
+.play examples/slices-sizes.go /^func main/,/^}
+
+## Byte Slices
+
+It is the type most often used when dealing with IO operations.
+They are also the basic data type that underlies both runes and strings.
+
+## Strings
+
+* Strings are immutable
+* Strings are actually backed by byte slices
+* Strings are passed by copy of their `sliceHeader`
+
+## String Indexing
+
+Because strings are actually byte slices under the hood, it is very easy to index them.
+
+.play examples/strings-indexing.go /^func main/,/^}
+
+## String Indexing - gotcha!
+
+Strings are `[]byte` under the hood. And can contain non-ASCII data
+
+.play examples/strings-indexing-awry.go /^func main/,/^}
+
+**Add loop example**
+
+## String Indexing - Why did that happen?
+
+* strings are `[]byte` 
+* non-ASCII characters are made up of multiple bytes
+
+.play examples/strings-indexing-awry-explained.go /^func main/,/^}
+
+## String Indexing - []rune
+
+You can convert to strings to `[]rune` to index 'characters' more reliably
+
+.play examples/strings-indexing-awry-fixed.go /^func main/,/^}
+
+**Add loop example**
+
+## String Indexing - gotcha again!
+
+But even then, strings don't always contain printable bytes.
+
+.play examples/strings-indexing-bytes.go /^func main/,/^}
+
+**Add loop example**
+
+
+## Runes
+
+* Runes are also backed by byte slices under the hood
+* Runes are an alias to the `int32` type
+* Runes are the default type used when creating a fuzzy constant with single quotes
+    ```go
+    r := 'x'
+    ```
+
+## Structs
+
+Stucts are the way that go organizes data. They can have zero to N fields.
+
+## Struct Sizes
+
+They are usually as big as their fields combined.
+
+*code example
+
+But not always!
+
+*code example of boolean compression
+
+## Struct Sizes - Simple
+
+.play examples/structs-sizes.go /^func main/,/^}
+
+## Struct Sizes - Complex
+
+.play examples/structs-sizes-complex.go /^func main/,/^}
+
+## Struct Sizes - Padding
+
+.play examples/structs-sizes-padding.go /^func main/,/^}
+
+## Go Spec
+
+Explain that structs must be "naturally" alligned
+
+*Shovel analogy
+
+## Struct Sizes - Padding Natural Alignment
+
+.play examples/structs-sizes-padding-alt.go /^func main/,/^}
+
+## Struct Sizes - Padding Bools
+
+.play examples/structs-sizes-padding-bools.go /^func main/,/^}
+
+## Struct Sizes - Padding Bools Cont.
+
+.play examples/structs-sizes-padding-bools-more.go /^func main/,/^}
+
+## Struct Sizes - Padding Bools Cont.
+
+.play examples/structs-sizes-padding-bools-more-awry.go /^func main/,/^}
+
+## Empty Structs are zero size
+
+.play examples/empty-struct.go /^func main/,/^}
+
+## Empty Structs of all empty members are zero size
+
+.play examples/empty-struct-nested.go /^func main/,/^}
+
+## Empty Struct arrays are zero size
+
+.play examples/empty-struct-array.go /^func main/,/^}
+
+## Empty Struct slices have the sliceHeader size only
+
+This means that slices of empty structs take up **more** memory than arrays of empty structs
+
+.play examples/empty-struct-array.go /^func main/,/^}
+
+## The IMPORTANT Part - Empty struct
+
+Empty structs are most practically used in maps and channels
+
+* This signals to the code reader that the *content* of the map or channel is not important.
+* The memory savings in very large maps is also a nice bonus
+
+## Interfaces
+
+Interfaces could hold anything. So they have to be stored as two-word
+pairs of data:
+
+* A pointer to information about the type stored in the interface
+* A pointer to the associate data
+
+## Interface sizes are always the same
+
+.play examples/interfaces.go /BEGIN OMIT/,/END OMIT/
