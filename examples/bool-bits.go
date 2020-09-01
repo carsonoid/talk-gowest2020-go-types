@@ -7,7 +7,7 @@ import (
 
 func main() {
 	var b bool
-	fmt.Println(unsafe.Sizeof(b))
+	fmt.Println(unsafe.Sizeof(b)*8, "bits")
 }
 
 // Partial copy of https://golang.org/src/unsafe/unsafe.go?s=8189:8225#L178

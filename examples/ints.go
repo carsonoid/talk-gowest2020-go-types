@@ -2,27 +2,19 @@ package main
 
 import (
 	"fmt"
-	"reflect"
+	"unsafe"
 )
 
 func main() {
 	var i8 int8
-	sizeInBits(i8)
+	fmt.Println(unsafe.Sizeof(i8)*8, "bits")
 
 	var i16 int16
-	sizeInBits(i16)
+	fmt.Println(unsafe.Sizeof(i16)*8, "bits")
 
 	var i32 int32
-	sizeInBits(i32)
+	fmt.Println(unsafe.Sizeof(i32)*8, "bits")
 
 	var i64 int64
-	sizeInBits(i64)
-}
-
-func sizeInBits(i interface{}) {
-	// use reflect to get size in bytes
-	s := reflect.TypeOf(i).Size()
-
-	// print bytes * 8 to get bits
-	fmt.Println(s * 8)
+	fmt.Println(unsafe.Sizeof(i64)*8, "bits")
 }

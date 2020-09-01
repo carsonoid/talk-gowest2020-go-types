@@ -17,17 +17,43 @@ DevX Engineer, Weave
 * What happens when I pass a `slice`?
 * When should I pass a `struct` vs `pointer`?
 
-## What's in a bool?
+## How big is a bool?
 
-.play examples/ints.go /^func main/,/^}
+: We are starting simple, but this shows that even seemingly easy assumptions can be wrong
 
-## Int Types
+A seemingly simple question
+
+.play examples/bool.go /^func main/,/^}
+
+: Size is not what is expected
+
+## Makes sense... Except!
+
+: Explain reflect.SizeOf since we will use it a lot
+
+From the Go docs on `reflect.SizeOf`:
+
+.code examples/bool.go /START OMIT/,/END OMIT/
+
+: Size is not what is expected
+
+So really...
+
+.play examples/bool-bits.go /^func main/,/^}
+
+## Interesting Golang Type Discoveriess
+
+1. Bools can be **more than one bit**
+
+## IntXX Types
+
+: count from source using 'git ls-files | xargs -n1 grep -Iswo int | wc -l'
+: it's a rought calculation, but good enough to illustrate the point
+: call out that the int type is used far more than any other type
 
 .html /html/ints.html
 
-## Int Types
-
-.html /html/ints-focus.html
+Plain old `int` is the most used integer type by far.
 
 ## intXX Size Proof
 
@@ -35,21 +61,36 @@ DevX Engineer, Weave
 
 ## uintXX Size Proof
 
-.play examples/ints.go /^func main/,/^}
+.play examples/uints.go /^func main/,/^}
 
 ## But what about plain old `int`?
 
 .play examples/int.go /^func main/,/^}
 
-## Int Size Depends on compile architecture
+That answers it, right!
+
+ .. Right?
+
+What if I do this?
+
+`
+GOARCH=386 go run examples/int.go
+`
+
+## int and uint size in Go is implementation-specific
 
 * 32 bit for 32 bit systems
 * 64 bit for 64 bit systems
 
-## Which one do I use?
+So.. Which one do I use?
 
 * int is suggested for most cases
 * intXX for data int for everything else
+
+## Interesting Golang Type Discoveriess
+
+1. Bools can be **more than one bit**
+1. `int` and `uint` can **change size**
 
 ## A Note on Sizes
 
@@ -75,9 +116,65 @@ Float variables have arbitrary precision
 
 .play examples/floats-math-const.go /^func main/,/^}
 
-## Complex Numbers
+## But how?
 
-Really?
+.link https://golang.org/ref/spec#Constants
+
+> Implementation restriction: Although numeric constants have arbitrary precision in the language, a compiler may implement them using an internal representation with limited precision
+
+.code examples/floats-math-const.go /^func main/,/^}
+
+## Interesting Golang Type Discoveriess
+
+1. Bools can be **more than one bit**
+1. `int` and `uint` can **change size**
+1. Float constants can have **fixed precision**
+
+## Constants - Not what you think
+
+.play examples/constants-time.go /^func main/,/^}
+
+## Lets make that better!
+
+.play examples/constants-time-2.go /^func main/,/^}
+
+## Now make it configurable!
+
+.play examples/constants-time-3.go /^func main/,/^}
+
+## What??
+
+`
+  ./prog.go:19:28: invalid operation: time.Second * sleepSeconds (mismatched types time.Duration and int)
+`
+
+.code examples/constants-time-2.go /BEGIN OMIT/,/END OMIT/
+.code examples/constants-time-3.go /BEGIN OMIT/,/END OMIT/
+
+## What Type of Constant is that? None!
+
+.link https://golang.org/ref/spec#Constants
+
+> Constants may be typed or untyped. Literal constants, true, false, iota, and certain constant expressions containing only untyped constant operands are untyped.
+
+> A constant may be given a type explicitly by a constant declaration or conversion, or implicitly when used in a variable declaration or an assignment or as an operand in an expression. It is an error if the constant value cannot be represented as a value of the respective type.
+
+## Untyped consant work
+
+Go effectively does this for us during compilation
+
+.code examples/constants-time-2-behind.go /^func main/,/^}
+
+## Lets do that then!
+
+.play examples/constants-time-4.go /^func main/,/^}
+
+## Interesting Golang Type Discoveriess
+
+1. Bools can be **more than one bit**
+1. `int` and `uint` can **change size**
+1. Float constants can have **fixed precision**
+1. Constants can be **untyped**
 
 ## Bytes
 
@@ -150,7 +247,7 @@ Strings are `[]byte` under the hood. And can contain non-ASCII data
 
 ## String Indexing - Why did that happen?
 
-* strings are `[]byte` 
+* strings are `[]byte`
 * non-ASCII characters are made up of multiple bytes
 
 .play examples/strings-indexing-awry-explained.go /^func main/,/^}

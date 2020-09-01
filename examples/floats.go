@@ -2,12 +2,11 @@ package main
 
 import "fmt"
 
-const fconst = 1.002
-
-var f64 float64 = 1.002
-var f32 float32 = 1.002
-
 func main() {
+	const fconst = 1.002
+	var f64 float64 = 1.002
+	var f32 float32 = 1.002
+
 	fmt.Println(fconst, "==", f64, ":", fconst == f64)
 	fmt.Println(fconst, "==", f32, ":", fconst == f32)
 
