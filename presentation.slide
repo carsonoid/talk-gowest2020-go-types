@@ -12,10 +12,13 @@ DevX Engineer, Weave
 * How big is an `int`?
 * What type is a `constant`?s
 * How big is an empty `struct`?
-* What type is a `LABEL`?
 * Are all `nil`s identical?
+* How big is my `string`?
+* What's a `rune`?
 * What happens when I pass a `slice`?
 * When should I pass a `struct` vs `pointer`?
+
+## Bools
 
 ## How big is a bool?
 
@@ -130,6 +133,8 @@ Float variables have arbitrary precision
 1. `int` and `uint` can **change size**
 1. Float constants can have **fixed precision**
 
+## Constants
+
 ## Constants - Not what you think
 
 .play examples/constants-time.go /^func main/,/^}
@@ -176,7 +181,60 @@ Go effectively does this for us during compilation
 1. Float constants can have **fixed precision**
 1. Constants can be **untyped**
 
+## What about iota?
+
+`iota` is a go contant. But what type?
+
+.play examples/constants-iota.go /^const/,/^}
+
+## What does the spec say?
+
+.link https://golang.org/ref/spec#Constants
+
+> The predeclared identifier iota denotes an integer constant.
+
+## But what about this?
+
+.play examples/constants-iota-types.go /^const/,/^}
+
+## Not what I expected...
+
+.link https://golang.org/ref/spec#Iota
+
+> Within a constant declaration, the predeclared identifier iota represents successive **untyped integer constants**. Its value is the index of the respective ConstSpec in that constant declaration, starting at zero.
+
+*emphasis mine*
+
+## iota multiple uses
+
+> Within a constant declaration, the predeclared identifier iota represents **successive**  untyped integer constants. **Its value is the index of the respective ConstSpec in that constant declaration, starting at zero.**
+
+> By definition, multiple uses of iota in the same ConstSpec all have the same value
+
+*emphasis mine*
+
+.code examples/constants-iota-reuse.go /^const/,/END OMIT/
+
+## Interesting Golang Type Discoveriess
+
+1. Bools can be **more than one bit**
+1. `int` and `uint` can **change size**
+1. Float constants can have **fixed precision**
+1. Constants can be **untyped**
+1. `iota` is an `untyped int` but **has a changing value**
+
+
+## One last iota trick
+
+Use the `stringer` generator for meaningful names!
+
+.play examples/constants-iota-generator-fun/combined.go /BEGIN OMIT/,/END OMIT/
+
+**Run `go generate` first!!**
+
 ## Bytes
+
+## Bytes Defined
 
 Go has a raw data type called `byte` this is actually an alias to the `uint8` type.
 
@@ -192,12 +250,14 @@ var numberReadable byte = 1_00
 var letter byte = 'c'
 ```
 
-## Arrays
+## Arrays And Slices
+
+## Arrays Defined
 
 Arrays are swaths of contiguous memory for a specific type. They have a fixed length
 and their length cannot be changed after initialization.
 
-## Slices
+## Slices Defined
 
 Slices are a convenience layer on top of arrays, but they are backed by arrays.
 
