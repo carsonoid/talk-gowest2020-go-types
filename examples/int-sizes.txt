@@ -1,0 +1,4 @@
+uint     either 32 or 64 bits // HL
+int      same size as uint // HL
+uintptr  an unsigned integer large enough to store the
+         uninterpreted bits of a pointer value
