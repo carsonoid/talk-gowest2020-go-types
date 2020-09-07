@@ -7,7 +7,8 @@ import (
 
 func main() {
 	var data struct {
-		x bool   // 1 bytes
+		x bool // 1 bytes
+		// [7]byte
 		y uint64 // 8 bytes
 	}
 	fmt.Println(

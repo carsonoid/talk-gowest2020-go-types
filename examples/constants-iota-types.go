@@ -2,12 +2,15 @@ package main
 
 import "fmt"
 
+// BEGIN OMIT
 const (
 	a            = iota
 	b int64      = iota
 	c float64    = iota
 	d complex128 = iota
 )
+
+// END OMIT
 
 func main() {
 	// Print value and type of all constants

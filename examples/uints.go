@@ -6,15 +6,15 @@ import (
 )
 
 func main() {
-	var ui8 int8
+	var ui8 uint8
 	fmt.Println(unsafe.Sizeof(ui8)*8, "bits")
 
-	var ui16 int16
+	var ui16 uint16
 	fmt.Println(unsafe.Sizeof(ui16)*8, "bits")
 
-	var ui32 int32
+	var ui32 uint32
 	fmt.Println(unsafe.Sizeof(ui32)*8, "bits")
 
-	var ui64 int64
+	var ui64 uint64
 	fmt.Println(unsafe.Sizeof(ui64)*8, "bits")
 }

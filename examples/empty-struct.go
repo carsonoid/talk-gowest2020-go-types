@@ -6,7 +6,6 @@ import (
 )
 
 func main() {
-	// empty struct has zero size
 	var empty struct{}
 	fmt.Println(unsafe.Sizeof(empty))
 }

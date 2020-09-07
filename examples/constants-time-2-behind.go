@@ -12,6 +12,6 @@ func main() {
 
 	fmt.Print("sleeping for ", sleepSeconds, " seconds...")
 	// invalid code do demonstrate the idea beind untyped constants OMIT
-	time.Sleep(time.Second * sleepSeconds.(time.Duration)) // HL
+	time.Sleep(time.Second * time.Duration(sleepSeconds)) // HL
 	fmt.Println("done")
 }

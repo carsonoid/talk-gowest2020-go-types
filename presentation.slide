@@ -11,6 +11,7 @@ DevX Engineer, Weave
 * How big is a bool?
 * How big is an `int`?
 * What type is a `constant`?s
+* What is `iota`?
 * How big is an empty `struct`?
 * Are all `nil`s identical?
 * How big is my `string`?
@@ -34,7 +35,7 @@ A seemingly simple question
 
 : Explain reflect.SizeOf since we will use it a lot
 
-From the Go docs on `reflect.SizeOf`:
+From the Go docs on `unsafe.SizeOf`:
 
 .code examples/bool.go /START OMIT/,/END OMIT/
 
@@ -44,11 +45,15 @@ So really...
 
 .play examples/bool-bits.go /^func main/,/^}
 
-## Interesting Golang Type Discoveriess
+## Interesting Golang Type Discoveries
 
 1. Bools can be **more than one bit**
 
-## IntXX Types
+## Integer Types
+
+## IntXX Types Occurances
+
+How often the different integer types occur in the go source:
 
 : count from source using 'git ls-files | xargs -n1 grep -Iswo int | wc -l'
 : it's a rought calculation, but good enough to illustrate the point
@@ -56,7 +61,7 @@ So really...
 
 .html /html/ints.html
 
-Plain old `int` is the most used integer type by far.
+Plain old `int` is the most used integer type by far. But.. how *big* is it?
 
 ## intXX Size Proof
 
@@ -66,56 +71,59 @@ Plain old `int` is the most used integer type by far.
 
 .play examples/uints.go /^func main/,/^}
 
-## But what about plain old `int`?
+## But what about plain old `int` and `uint`?
 
 .play examples/int.go /^func main/,/^}
 
-That answers it, right!
+## That answers it, right!
 
- .. Right?
+.image https://media.giphy.com/media/SVgKToBLI6S6DUye1Y/giphy.gif _ 800
 
-What if I do this?
+## Try targeting a different architecure with GOARCH
 
-`
-GOARCH=386 go run examples/int.go
-`
+.code examples/int.go /^func main/,/^}
+
+.play examples/int-arch-faker.go /BEGIN OMIT/,/END OMIT/
+
 
 ## int and uint size in Go is implementation-specific
+
+.link  https://golang.org/ref/spec#Numeric_types
+
+.code examples/int-sizes.txt
+
+In short:
 
 * 32 bit for 32 bit systems
 * 64 bit for 64 bit systems
 
 So.. Which one do I use?
 
-* int is suggested for most cases
-* intXX for data int for everything else
+* (u)int is suggested for most cases
+* (u)intXX for shared data models
 
-## Interesting Golang Type Discoveriess
+## Interesting Golang Type Discoveries
 
 1. Bools can be **more than one bit**
 1. `int` and `uint` can **change size**
 
-## A Note on Sizes
+## Float Types
 
-The architecture size is also called "word" length
+## Float Sizes
 
-* There will be many other cases where variable sizes change based
-on word length
-* All of the examples and size here are for `GOARCH=amd64` an 8 byte (64 bit) word length
+.play examples/floats-sizes.go /^func main/,/^}
 
-## Floats
+## Float casting is odd..
 
-Talk about `floatXX` constants vs variables and `==` behavior
+.play examples/int-casting.go /^func main/,/^}
 
-.play examples/floats.go /^func main/,/^}
+.play examples/float-casting.go /^func main/,/^}
 
-## Float Math - Variables
-
-Float variables have arbitrary precision
+## Float variables have arbitrary precision
 
 .play examples/floats-math-vars.go /^func main/,/^}
 
-## Float Math - Constants
+## What about float contants?
 
 .play examples/floats-math-const.go /^func main/,/^}
 
@@ -127,7 +135,7 @@ Float variables have arbitrary precision
 
 .code examples/floats-math-const.go /^func main/,/^}
 
-## Interesting Golang Type Discoveriess
+## Interesting Golang Type Discoveries
 
 1. Bools can be **more than one bit**
 1. `int` and `uint` can **change size**
@@ -149,9 +157,9 @@ Float variables have arbitrary precision
 
 ## What??
 
-`
-  ./prog.go:19:28: invalid operation: time.Second * sleepSeconds (mismatched types time.Duration and int)
-`
+.code examples/constants-time-err.txt
+
+But we only changed one line:
 
 .code examples/constants-time-2.go /BEGIN OMIT/,/END OMIT/
 .code examples/constants-time-3.go /BEGIN OMIT/,/END OMIT/
@@ -162,9 +170,9 @@ Float variables have arbitrary precision
 
 > Constants may be typed or untyped. Literal constants, true, false, iota, and certain constant expressions containing only untyped constant operands are untyped.
 
-> A constant may be given a type explicitly by a constant declaration or conversion, or implicitly when used in a variable declaration or an assignment or as an operand in an expression. It is an error if the constant value cannot be represented as a value of the respective type.
+> A constant may be given a type explicitly by a constant declaration or conversion, or implicitly when used in a variable declaration or an assignment or as an operand in an expression.
 
-## Untyped consant work
+## Under the hood...
 
 Go effectively does this for us during compilation
 
@@ -174,14 +182,16 @@ Go effectively does this for us during compilation
 
 .play examples/constants-time-4.go /^func main/,/^}
 
-## Interesting Golang Type Discoveriess
+## Interesting Golang Type Discoveries
 
 1. Bools can be **more than one bit**
 1. `int` and `uint` can **change size**
 1. Float constants can have **fixed precision**
 1. Constants can be **untyped**
 
-## What about iota?
+## iota
+
+## What about it?
 
 `iota` is a go contant. But what type?
 
@@ -201,28 +211,27 @@ Go effectively does this for us during compilation
 
 .link https://golang.org/ref/spec#Iota
 
-> Within a constant declaration, the predeclared identifier iota represents successive **untyped integer constants**. Its value is the index of the respective ConstSpec in that constant declaration, starting at zero.
+> Within a constant declaration, the predeclared identifier iota represents **successive untyped integer constants**.
 
-*emphasis mine*
+.play examples/constants-iota-types-replaced.go /BEGIN OMIT/,/END OMIT/
 
-## iota multiple uses
+## But that's not all!
 
-> Within a constant declaration, the predeclared identifier iota represents **successive**  untyped integer constants. **Its value is the index of the respective ConstSpec in that constant declaration, starting at zero.**
+.link https://golang.org/ref/spec#Iota
 
-> By definition, multiple uses of iota in the same ConstSpec all have the same value
+> Its value is the index of the respective ConstSpec in that constant declaration, starting at zero.
 
-*emphasis mine*
+Iota is not a type, its a **dynamic constant**. And because of this, it a can be treated like a value and even be put into expressions
 
-.code examples/constants-iota-reuse.go /^const/,/END OMIT/
+.play examples/constants-iota-expr.go /^const/,/^}
 
-## Interesting Golang Type Discoveriess
+## Interesting Golang Type Discoveries
 
 1. Bools can be **more than one bit**
 1. `int` and `uint` can **change size**
 1. Float constants can have **fixed precision**
 1. Constants can be **untyped**
-1. `iota` is an `untyped int` but **has a changing value**
-
+1. `iota` is an `untyped int`, but it **has a value** that *changes*
 
 ## One last iota trick
 
@@ -232,32 +241,17 @@ Use the `stringer` generator for meaningful names!
 
 **Run `go generate` first!!**
 
-## Bytes
-
-## Bytes Defined
-
-Go has a raw data type called `byte` this is actually an alias to the `uint8` type.
-
-Bytes are most commonly used under the hood for strings and
-other IO operations we will talk about later
-
-But it is possible to create constants and variables of the byte type which hold ASCII characters.
-
-```go
-var numberFromOctal byte = 01
-var numberFromHex byte = 0x1
-var numberReadable byte = 1_00
-var letter byte = 'c'
-```
-
 ## Arrays And Slices
 
-## Arrays Defined
+## Arrays
 
-Arrays are swaths of contiguous memory for a specific type. They have a fixed length
-and their length cannot be changed after initialization.
+Arrays are swaths of contiguous memory for a specific type.
 
-## Slices Defined
+They have a fixed length and can be indexed to get the value at any point in the array.
+
+.play examples/arrays.go /^func main/,/^}
+
+## Slices
 
 Slices are a convenience layer on top of arrays, but they are backed by arrays.
 
@@ -276,14 +270,33 @@ type sliceHeader struct {
 }
 ```
 
-## Slices - Sizes
+## Slice Sizes
 
 .play examples/slices-sizes.go /^func main/,/^}
 
-## Byte Slices
+## Bytes
 
-It is the type most often used when dealing with IO operations.
-They are also the basic data type that underlies both runes and strings.
+## Bytes Defined
+
+Go has a raw data type called `byte` they are actually an alias to the `uint8` type.
+
+There are lots of ways to declare bytes
+
+.play examples/byte-declarations.go
+
+## Byte Slices, Strings, and Runes
+
+## Byte Slice
+
+It is the type most often used when dealing with IO operations. Or large sets of raw data.
+
+From `ioutil`:
+* `func ReadFile(filename string) ([]byte, error)`
+
+From `encoding/json`:
+* `func Marshal(v interface{}) ([]byte, error)`
+
+They are also the basic data type that underlies both `runes` and `strings`.
 
 ## Strings
 
@@ -303,12 +316,41 @@ Strings are `[]byte` under the hood. And can contain non-ASCII data
 
 .play examples/strings-indexing-awry.go /^func main/,/^}
 
-**Add loop example**
-
 ## String Indexing - Why did that happen?
 
 * strings are `[]byte`
 * non-ASCII characters are made up of multiple bytes
+
+.play examples/strings-indexing-awry-explained.go /^func main/,/^}
+
+**But how do we fix it?**
+
+## Runes!
+
+* Runes are the default type used when creating a fuzzy constant with single quotes
+* Runes are an alias to the `int32` type
+
+.play examples/runes.go /^func main/,/^}
+
+## Runes to Strings!
+
+We can explicitly convert them to strings to print:
+
+.play examples/runes-strings.go /^func main/,/^}
+
+## Runes to Strings to Byte Slices!
+
+The go spec clearly defines how rune to string converson:
+
+.link https://golang.org/ref/spec#Conversions_to_and_from_a_string_type
+
+> 3. Converting a slice of runes to a string type yields a string that is the concatenation of the individual rune values converted to strings.
+
+## So that means we can do this:
+
+.play examples/runes-slice.go /^func main/,/^}
+
+## Remember this?
 
 .play examples/strings-indexing-awry-explained.go /^func main/,/^}
 
@@ -318,9 +360,7 @@ You can convert to strings to `[]rune` to index 'characters' more reliably
 
 .play examples/strings-indexing-awry-fixed.go /^func main/,/^}
 
-**Add loop example**
-
-## String Indexing - gotcha again!
+## String Indexing - Gotcha Again!
 
 But even then, strings don't always contain printable bytes.
 
@@ -328,39 +368,45 @@ But even then, strings don't always contain printable bytes.
 
 **Add loop example**
 
+## String Looping
 
-## Runes
+.play examples/strings-loop.go /^func main/,/^}
 
-* Runes are also backed by byte slices under the hood
-* Runes are an alias to the `int32` type
-* Runes are the default type used when creating a fuzzy constant with single quotes
-    ```go
-    r := 'x'
-    ```
+Remember: `string` is really `[]byte`
+
+## Better String Looping
+
+You must cast `string` to `[]rune` to iterate properly.
+
+.play examples/strings-loop-fixed.go /^func main/,/^}
+
+## Even Better
+
+The `range` operator is smart! It knows to do this for you!
+
+.play examples/strings-range.go /^func main/,/^}
+
+## Even with NULL Bytes
+
+.play examples/strings-range-null.go /^func main/,/^}
 
 ## Structs
 
-Stucts are the way that go organizes data. They can have zero to N fields.
+Stucts are the way that go organizes data.
 
-## Struct Sizes
+They can have zero to N fields
 
-They are usually as big as their fields combined.
+.play examples/structs.go /BEGIN OMIT/,/END OMIT/
 
-*code example
-
-But not always!
-
-*code example of boolean compression
-
-## Struct Sizes - Simple
+## They are usually as big as their fields combined
 
 .play examples/structs-sizes.go /^func main/,/^}
 
-## Struct Sizes - Complex
+## Even when nested
 
 .play examples/structs-sizes-complex.go /^func main/,/^}
 
-## Struct Sizes - Padding
+## But not always!
 
 .play examples/structs-sizes-padding.go /^func main/,/^}
 
@@ -368,7 +414,13 @@ But not always!
 
 Explain that structs must be "naturally" alligned
 
-*Shovel analogy
+Go will pad the memory as needed in order to get struct fields to align along word boundries.
+
+Think of it as the complier doing this for you:
+
+.code examples/structs-sizes-padding-explained.go /^func main/,/^}
+
+: Basically, processor word size can be thought of as a "shovel size" where the system HAS to get enough data to fill the shovel all the time. So it's much more effecient on the system to ensure that data does not have to be fetched in uneven chunks.
 
 ## Struct Sizes - Padding Natural Alignment
 
@@ -378,31 +430,37 @@ Explain that structs must be "naturally" alligned
 
 .play examples/structs-sizes-padding-bools.go /^func main/,/^}
 
-## Struct Sizes - Padding Bools Cont.
+## Struct Sizes - Padding Bools Continued
 
 .play examples/structs-sizes-padding-bools-more.go /^func main/,/^}
 
-## Struct Sizes - Padding Bools Cont.
+## Struct Sizes - Padding Bools Continued
 
 .play examples/structs-sizes-padding-bools-more-awry.go /^func main/,/^}
 
-## Empty Structs are zero size
+## But What About Empty Stucts?
+
+`type nothin struct{}`
+
+How much space does that take?
+
+Is there a `structHeader`?
+
+## Nope! Empty Structs are Zero Size
 
 .play examples/empty-struct.go /^func main/,/^}
 
-## Empty Structs of all empty members are zero size
+## Empty Structs Of All Empty Members Are Zero Size
 
 .play examples/empty-struct-nested.go /^func main/,/^}
 
-## Empty Struct arrays are zero size
+## Empty Struct Arrays Are Zero Size
 
 .play examples/empty-struct-array.go /^func main/,/^}
 
-## Empty Struct slices have the sliceHeader size only
+## Empty struct slices are only as big as the sliceHeader
 
-This means that slices of empty structs take up **more** memory than arrays of empty structs
-
-.play examples/empty-struct-array.go /^func main/,/^}
+.play examples/empty-struct-slice.go /^func main/,/^}
 
 ## The IMPORTANT Part - Empty struct
 
@@ -410,15 +468,30 @@ Empty structs are most practically used in maps and channels
 
 * This signals to the code reader that the *content* of the map or channel is not important.
 * The memory savings in very large maps is also a nice bonus
+  * Even `map[string]bool` wastes **8 bits** per entry
+
+## Maps
+
+## Maps Defined
+
+## How big is a map?
+
+https://github.com/golang/go/blob/d99fe1f40dfacfdebee22c13ed4471fd50f2cc1a/src/runtime/map.go#L115
 
 ## Interfaces
 
-Interfaces could hold anything. So they have to be stored as two-word
+## Interfaces Defined
+
+Since Interfaces an hold anything, they have to be stored as two-word
 pairs of data:
 
-* A pointer to information about the type stored in the interface
-* A pointer to the associate data
+* A `uintptr` to information about the type stored in the interface
+* A `uintptr` to the associated data behind the type
 
 ## Interface sizes are always the same
 
 .play examples/interfaces.go /BEGIN OMIT/,/END OMIT/
+
+## Interfaces nil is not a nil
+
+.play examples/interfaces-nils.go /^func main/,/^}
