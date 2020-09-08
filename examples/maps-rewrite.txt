@@ -1,0 +1,4 @@
+v := m["key"]     → runtime.mapaccess1(m, ”key", &v)
+v, ok := m["key"] → runtime.mapaccess2(m, ”key”, &v, &ok)
+m["key"] = 9001   → runtime.mapinsert(m, ”key", 9001)
+delete(m, "key")  → runtime.mapdelete(m, “key”)

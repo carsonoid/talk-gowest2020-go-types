@@ -1,0 +1,5 @@
+type sliceHeader struct {
+    ptr *[]Elem // 8 bytes for amd64
+    len int     // 8 bytes for amd64
+    cap int     // 8 bytes for amd64
+}

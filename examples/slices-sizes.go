@@ -6,15 +6,19 @@ import (
 )
 
 func main() {
-	bools := []bool{}
-	fmt.Println("bools size: ", unsafe.Sizeof(bools))
-	arraySize := cap(bools) * int(unsafe.Sizeof(true))
-	fmt.Println("array size: ", arraySize)
+	s1 := []bool{}
+	fmt.Println("header bytes: ", unsafe.Sizeof(s1))
+	fmt.Println(
+		"array bytes: ",
+		cap(s1)*int(unsafe.Sizeof("")),
+	)
 
 	fmt.Println()
 
-	ints := make([]int8, 100)
-	fmt.Println("ints size:  ", unsafe.Sizeof(ints))
-	arraySize = cap(ints) * int(unsafe.Sizeof(int(1)))
-	fmt.Println("array size: ", arraySize)
+	s2 := make([]bool, 100)
+	fmt.Println("header bytes: ", unsafe.Sizeof(s2))
+	fmt.Println(
+		"array bytes: ",
+		cap(s2)*int(unsafe.Sizeof("")),
+	)
 }

@@ -14,10 +14,10 @@ DevX Engineer, Weave
 * What is `iota`?
 * How big is an empty `struct`?
 * Are all `nil`s identical?
-* How big is my `string`?
+* Should I pass large `strings`?
 * What's a `rune`?
 * What happens when I pass a `slice`?
-* When should I pass a `struct` vs `pointer`?
+: * When should I pass a `struct` vs `pointer`?
 
 ## Bools
 
@@ -39,6 +39,8 @@ From the Go docs on `unsafe.SizeOf`:
 
 .code examples/bool.go /START OMIT/,/END OMIT/
 
+> size in bytes
+
 : Size is not what is expected
 
 So really...
@@ -47,9 +49,7 @@ So really...
 
 ## Interesting Golang Type Discoveries
 
-1. Bools can be **more than one bit**
-
-## Integer Types
+1. `bool` can be **more than one bit**
 
 ## IntXX Types Occurances
 
@@ -75,7 +75,7 @@ Plain old `int` is the most used integer type by far. But.. how *big* is it?
 
 .play examples/int.go /^func main/,/^}
 
-## That answers it, right!
+## That answers it, right?
 
 .image https://media.giphy.com/media/SVgKToBLI6S6DUye1Y/giphy.gif _ 800
 
@@ -99,31 +99,25 @@ In short:
 
 So.. Which one do I use?
 
-* (u)int is suggested for most cases
-* (u)intXX for shared data models
+* `(u)int` is suggested for most cases
+* `(u)intXX` for shared data models
 
 ## Interesting Golang Type Discoveries
 
-1. Bools can be **more than one bit**
+1. `bool` can be **more than one bit**
 1. `int` and `uint` can **change size**
 
 ## Float Types
 
-## Float Sizes
-
-.play examples/floats-sizes.go /^func main/,/^}
-
-## Float casting is odd..
-
-.play examples/int-casting.go /^func main/,/^}
-
-.play examples/float-casting.go /^func main/,/^}
-
-## Float variables have arbitrary precision
+## Let's compare some floats!
 
 .play examples/floats-math-vars.go /^func main/,/^}
 
-## What about float contants?
+## As expected: float variables have arbitrary precision
+
+.play examples/floats-math-vars-expl.go /^func main/,/^}
+
+## What about float constants?
 
 .play examples/floats-math-const.go /^func main/,/^}
 
@@ -133,13 +127,13 @@ So.. Which one do I use?
 
 > Implementation restriction: Although numeric constants have arbitrary precision in the language, a compiler may implement them using an internal representation with limited precision
 
-.code examples/floats-math-const.go /^func main/,/^}
+.play examples/floats-math-const-expl.go /^func main/,/^}
 
 ## Interesting Golang Type Discoveries
 
-1. Bools can be **more than one bit**
+1. `bool` can be **more than one bit**
 1. `int` and `uint` can **change size**
-1. Float constants can have **fixed precision**
+1. `floatXX` constants can have **fixed precision**
 
 ## Constants
 
@@ -184,16 +178,16 @@ Go effectively does this for us during compilation
 
 ## Interesting Golang Type Discoveries
 
-1. Bools can be **more than one bit**
+1. `bool` can be **more than one bit**
 1. `int` and `uint` can **change size**
-1. Float constants can have **fixed precision**
+1. `floatXX` constants can have **fixed precision**
 1. Constants can be **untyped**
 
 ## iota
 
 ## What about it?
 
-`iota` is a go contant. But what type?
+Is it a `iota` a type?
 
 .play examples/constants-iota.go /^const/,/^}
 
@@ -207,7 +201,7 @@ Go effectively does this for us during compilation
 
 .play examples/constants-iota-types.go /^const/,/^}
 
-## Not what I expected...
+## Digging deeper...
 
 .link https://golang.org/ref/spec#Iota
 
@@ -217,21 +211,19 @@ Go effectively does this for us during compilation
 
 ## But that's not all!
 
-.link https://golang.org/ref/spec#Iota
-
-> Its value is the index of the respective ConstSpec in that constant declaration, starting at zero.
-
-Iota is not a type, its a **dynamic constant**. And because of this, it a can be treated like a value and even be put into expressions
+Because `iota` is not a type, but a **dynamic constant**, it a can be treated like a value and even be put into expressions.
 
 .play examples/constants-iota-expr.go /^const/,/^}
 
+It can almost be thought of as a simple compiler replacement symbol.
+
 ## Interesting Golang Type Discoveries
 
-1. Bools can be **more than one bit**
+1. `bool` can be **more than one bit**
 1. `int` and `uint` can **change size**
-1. Float constants can have **fixed precision**
+1. `floatXX` constants can have **fixed precision**
 1. Constants can be **untyped**
-1. `iota` is an `untyped int`, but it **has a value** that *changes*
+1. `iota` is an `untyped int` and it **changes value**
 
 ## One last iota trick
 
@@ -251,28 +243,36 @@ They have a fixed length and can be indexed to get the value at any point in the
 
 .play examples/arrays.go /^func main/,/^}
 
+: ## Can you pass an Array?
+
+: .play examples/arrays-pass.go /^func main/,/END OMIT/
+
 ## Slices
 
 Slices are a convenience layer on top of arrays, but they are backed by arrays.
 
 Slices really have **two sizes**, the size of the `sliceHeader` and the size of the underlying `array`
 
-When you pass a slice around, you pass a copy of the `sliceHeader` which is essentially a 3-word length
-struct that is completely hidden by the language.
+When you pass a slice around, you pass a copy of the `sliceHeader` which is essentially a 3 word lenght struct that is completely hidden by the language.
 
 Each slice header can be thought of like a struct with the following composition:
 
-```go
-type sliceHeader struct {
-    ptr *[]Elem
-    len int
-    cap int
-}
-```
+.code examples/slice-header.txt
 
 ## Slice Sizes
 
+So when I pass a slice? How much data am I passing?
+
 .play examples/slices-sizes.go /^func main/,/^}
+
+## Interesting Golang Type Discoveries
+
+1. `bool` can be **more than one bit**
+1. `int` and `uint` can **change size**
+1. `floatXX` constants can have **fixed precision**
+1. Constants can be **untyped**
+1. `iota` is an `untyped int` and it **changes value**
+1. All `slice` variables **cost the same** to copy
 
 ## Bytes
 
@@ -300,19 +300,35 @@ They are also the basic data type that underlies both `runes` and `strings`.
 
 ## Strings
 
-* Strings are immutable
-* Strings are actually backed by byte slices
-* Strings are passed by copy of their `sliceHeader`
+## Strings are byte slices
+
+* Strings are actually backed by modified byte slices
+* Strings are passed by copy of their custom `sliceHeader`
+
+.play examples/strings-slice-comparison.go /^func main/,/^}
+
+## Ok... Strings can be *thought of* as a byte slice
+
+Strings are Immutable, so they don't need a `cap`
+
+.code examples/strings-slice-comparison.txt
+
+.play examples/strings-slice-comparison.go /^func main/,/^}
+
+
+## But what is the "true" size of  a string?
+
+.play examples/strings-slice-comparison-2.go /^func main/,/^}
 
 ## String Indexing
 
-Because strings are actually byte slices under the hood, it is very easy to index them.
+Because strings are like byte slices under the hood, they can be indexed.
 
 .play examples/strings-indexing.go /^func main/,/^}
 
 ## String Indexing - gotcha!
 
-Strings are `[]byte` under the hood. And can contain non-ASCII data
+Strings often contain non-ASII bytes:
 
 .play examples/strings-indexing-awry.go /^func main/,/^}
 
@@ -470,13 +486,19 @@ Empty structs are most practically used in maps and channels
 * The memory savings in very large maps is also a nice bonus
   * Even `map[string]bool` wastes **8 bits** per entry
 
+.play examples/empty-struct-use.go /^func main/,/^}
+
 ## Maps
 
-## Maps Defined
+## Maps aren't a type
 
-## How big is a map?
+No, really.
 
-https://github.com/golang/go/blob/d99fe1f40dfacfdebee22c13ed4471fd50f2cc1a/src/runtime/map.go#L115
+They are very fancy structs that get generated for you at compile-time. All your map operations also get rewritten at that time:
+
+.code examples/maps-rewrite.txt
+
+.link https://dave.cheney.net/2018/05/29/how-the-go-runtime-implements-maps-efficiently-without-generics
 
 ## Interfaces
 
