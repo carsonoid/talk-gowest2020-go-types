@@ -6,6 +6,8 @@ Carson Anderson
 DevX Engineer, Weave
 @carson_ops
 
+https://github.com/carsonoid/talk-gowest2020-go-types
+
 ## Questions I Had About Go Types
 
 * How big is a bool?
@@ -584,9 +586,7 @@ pairs of data:
 1. Maps **aren't a type**
 1. Inteface `nil` **isn't a nil**
 
-## Thank You!
-
-Tools used for this presentation:
+## Tools used for this presentation
 
 * `go present`
 
