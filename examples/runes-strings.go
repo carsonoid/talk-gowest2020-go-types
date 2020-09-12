@@ -10,8 +10,8 @@ func main() {
 	)
 
 	fmt.Println(
-		string(x)),
-		string(y)),
-		string(ni)),
+		string(x),
+		string(y),
+		string(ni),
 	)
 }

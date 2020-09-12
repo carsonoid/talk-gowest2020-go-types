@@ -11,5 +11,6 @@ var (
 )
 
 func main() {
+	// Bytes are an alias to int8, and are printed as one by default
 	fmt.Println(b1, b2, b3, b4, b5)
 }

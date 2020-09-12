@@ -6,11 +6,17 @@ import (
 )
 
 func main() {
+	fmt.Println("string sizes:  ")
 	var str string = "Hi"
-	fmt.Println("string bytes: ", unsafe.Sizeof(str))
-	fmt.Println("string size:  ", len(str))
+	fmt.Println("header: ", unsafe.Sizeof(str))
+	fmt.Println("len:    ", len(str))
+	fmt.Println("total:  ", int(unsafe.Sizeof(str))+len(str))
 
+	fmt.Println()
+
+	fmt.Println("byte slice sizes:  ")
 	slice := []byte(str)
-	fmt.Println("slice bytes:  ", unsafe.Sizeof(slice))
-	fmt.Println("slice size:   ", len(slice))
+	fmt.Println("header: ", unsafe.Sizeof(slice))
+	fmt.Println("cap:    ", cap(slice)) // you have to use cap for slices
+	fmt.Println("total:  ", int(unsafe.Sizeof(slice))+cap(slice))
 }

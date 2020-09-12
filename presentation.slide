@@ -215,7 +215,7 @@ Because `iota` is not a type, but a **dynamic constant**, it a can be treated li
 
 .play examples/constants-iota-expr.go /^const/,/^}
 
-It can almost be thought of as a simple compiler replacement symbol.
+It can be thought of as a simple compiler replacement symbol.
 
 ## Interesting Golang Type Discoveries
 
@@ -231,7 +231,7 @@ Use the `stringer` generator for meaningful names!
 
 .play examples/constants-iota-generator-fun/combined.go /BEGIN OMIT/,/END OMIT/
 
-**Run `go generate` first!!**
+> **Run `go generate` first!!**
 
 ## Arrays And Slices
 
@@ -272,7 +272,7 @@ So when I pass a slice? How much data am I passing?
 1. `floatXX` constants can have **fixed precision**
 1. Constants can be **untyped**
 1. `iota` is an `untyped int` and it **changes value**
-1. All `slice` variables **cost the same** to copy
+1. All `slice` variables **cost the same** to shallow copy
 
 ## Bytes
 
@@ -318,7 +318,23 @@ Strings are Immutable, so they don't need a `cap`
 
 ## But what is the "true" size of  a string?
 
+The size of the header + the length of the string:
+
 .play examples/strings-slice-comparison-2.go /^func main/,/^}
+
+## String & []byte summary
+
+`string`:
+* Immutable
+* Less overhead
+* Can be `constant`
+* Ineffecient concat of large strings
+  * Use `strings.Builder` for large string generation
+
+`[]byte`:
+* Can be modified/appended without full copy
+* More overhead
+* Lowest level IO
 
 ## String Indexing
 
@@ -362,49 +378,62 @@ The go spec clearly defines how rune to string converson:
 
 > 3. Converting a slice of runes to a string type yields a string that is the concatenation of the individual rune values converted to strings.
 
+So rune to string conversion is just appending the rune's bytes to the hidden `[]byte` behind a string.
+
 ## So that means we can do this:
 
 .play examples/runes-slice.go /^func main/,/^}
 
 ## Remember this?
 
+All this came around from our original indexing problem:
+
 .play examples/strings-indexing-awry-explained.go /^func main/,/^}
 
-## String Indexing - []rune
+## String indexing - []rune
 
 You can convert to strings to `[]rune` to index 'characters' more reliably
 
 .play examples/strings-indexing-awry-fixed.go /^func main/,/^}
 
-## String Indexing - Gotcha Again!
+## String indexing - gotcha again!
 
-But even then, strings don't always contain printable bytes.
+Strings don't always contain printable bytes. There is no requirement
+or guarantee that they will only have printable bytes.
 
 .play examples/strings-indexing-bytes.go /^func main/,/^}
 
-**Add loop example**
-
-## String Looping
+## String looping
 
 .play examples/strings-loop.go /^func main/,/^}
 
 Remember: `string` is really `[]byte`
 
-## Better String Looping
+## Better string looping
 
 You must cast `string` to `[]rune` to iterate properly.
 
 .play examples/strings-loop-fixed.go /^func main/,/^}
 
-## Even Better
+## Even better
 
 The `range` operator is smart! It knows to do this for you!
 
 .play examples/strings-range.go /^func main/,/^}
 
-## Even with NULL Bytes
+## Even with NULL bytes
 
 .play examples/strings-range-null.go /^func main/,/^}
+
+## Interesting Golang Type Discoveries
+
+1. `bool` can be **more than one bit**
+1. `int` and `uint` can **change size**
+1. `floatXX` constants can have **fixed precision**
+1. Constants can be **untyped**
+1. `iota` is an `untyped int` and it **changes value**
+1. All `slice` variables **cost the same** to shallow copy
+1. Be careful when **indexing or looping** a `string`
 
 ## Structs
 
@@ -426,7 +455,7 @@ They can have zero to N fields
 
 .play examples/structs-sizes-padding.go /^func main/,/^}
 
-## Go Spec
+## Go spec
 
 Explain that structs must be "naturally" alligned
 
@@ -438,23 +467,23 @@ Think of it as the complier doing this for you:
 
 : Basically, processor word size can be thought of as a "shovel size" where the system HAS to get enough data to fill the shovel all the time. So it's much more effecient on the system to ensure that data does not have to be fetched in uneven chunks.
 
-## Struct Sizes - Padding Natural Alignment
+## Struct sizes - padding natural alignment
 
 .play examples/structs-sizes-padding-alt.go /^func main/,/^}
 
-## Struct Sizes - Padding Bools
+## Struct sizes - padding bools
 
 .play examples/structs-sizes-padding-bools.go /^func main/,/^}
 
-## Struct Sizes - Padding Bools Continued
+## Struct sizes - consecutive bools get packed
 
 .play examples/structs-sizes-padding-bools-more.go /^func main/,/^}
 
-## Struct Sizes - Padding Bools Continued
+## Struct sizes - but only consecutive!
 
 .play examples/structs-sizes-padding-bools-more-awry.go /^func main/,/^}
 
-## But What About Empty Stucts?
+## But what about empty stucts?
 
 `type nothin struct{}`
 
@@ -462,15 +491,15 @@ How much space does that take?
 
 Is there a `structHeader`?
 
-## Nope! Empty Structs are Zero Size
+## Nope! Empty structs are zero size
 
 .play examples/empty-struct.go /^func main/,/^}
 
-## Empty Structs Of All Empty Members Are Zero Size
+## Empty structs of all empty members are zero size
 
 .play examples/empty-struct-nested.go /^func main/,/^}
 
-## Empty Struct Arrays Are Zero Size
+## Empty struct arrays are zero size
 
 .play examples/empty-struct-array.go /^func main/,/^}
 
@@ -478,15 +507,27 @@ Is there a `structHeader`?
 
 .play examples/empty-struct-slice.go /^func main/,/^}
 
-## The IMPORTANT Part - Empty struct
+## The IMPORTANT part - Empty struct
 
 Empty structs are most practically used in maps and channels
 
 * This signals to the code reader that the *content* of the map or channel is not important.
+
+.play examples/empty-struct-use.go /^func main/,/^}
+
 * The memory savings in very large maps is also a nice bonus
   * Even `map[string]bool` wastes **8 bits** per entry
 
-.play examples/empty-struct-use.go /^func main/,/^}
+## Interesting Golang Type Discoveries
+
+1. `bool` can be **more than one bit**
+1. `int` and `uint` can **change size**
+1. `floatXX` constants can have **fixed precision**
+1. Constants can be **untyped**
+1. `iota` is an `untyped int` and it **changes value**
+1. All `slice` variables **cost the same** to shallow copy
+1. Be careful when **indexing or looping** a `string`
+1. Structs have **no overhead** but may have **padding**
 
 ## Maps
 
@@ -499,6 +540,18 @@ They are very fancy structs that get generated for you at compile-time. All your
 .code examples/maps-rewrite.txt
 
 .link https://dave.cheney.net/2018/05/29/how-the-go-runtime-implements-maps-efficiently-without-generics
+
+## Interesting Golang Type Discoveries
+
+1. `bool` can be **more than one bit**
+1. `int` and `uint` can **change size**
+1. `floatXX` constants can have **fixed precision**
+1. Constants can be **untyped**
+1. `iota` is an `untyped int` and it **changes value**
+1. All `slice` variables **cost the same** to shallow copy
+1. Be careful when **indexing or looping** a `string`
+1. Structs have **no overhead** but may have **padding**
+1. Maps **aren't a type**
 
 ## Interfaces
 
@@ -517,3 +570,28 @@ pairs of data:
 ## Interfaces nil is not a nil
 
 .play examples/interfaces-nils.go /^func main/,/^}
+
+## Interesting Golang Type Discoveries
+
+1. `bool` can be **more than one bit**
+1. `int` and `uint` can **change size**
+1. `floatXX` constants can have **fixed precision**
+1. Constants can be **untyped**
+1. `iota` is an `untyped int` and it **changes value**
+1. All `slice` variables **cost the same** to shallow copy
+1. Be careful when **indexing or looping** a `string`
+1. Structs have **no overhead** but may have **padding**
+1. Maps **aren't a type**
+1. Inteface `nil` **isn't a nil**
+
+## Thank You!
+
+Tools used for this presentation:
+
+* `go present`
+
+.link https://godoc.org/golang.org/x/tools/present
+
+* Peek support for present files in `vscode`
+
+.link https://marketplace.visualstudio.com/items?itemName=carsonoid.vscode-go-present-peek
