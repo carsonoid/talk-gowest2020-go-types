@@ -18,19 +18,19 @@ if (
   typeof document !== 'undefined' &&
   !('classList' in document.createElement('a'))
 ) {
-  (function(view) {
+  (function (view) {
     var classListProp = 'classList',
       protoProp = 'prototype',
       elemCtrProto = (view.HTMLElement || view.Element)[protoProp],
       objCtr = Object;
     (strTrim =
       String[protoProp].trim ||
-      function() {
+      function () {
         return this.replace(/^\s+|\s+$/g, '');
       }),
       (arrIndexOf =
         Array[protoProp].indexOf ||
-        function(item) {
+        function (item) {
           for (var i = 0, len = this.length; i < len; i++) {
             if (i in this && this[i] === item) {
               return i;
@@ -39,12 +39,12 @@ if (
           return -1;
         }),
       // Vendors: please allow content code to instantiate DOMExceptions
-      (DOMEx = function(type, message) {
+      (DOMEx = function (type, message) {
         this.name = type;
         this.code = DOMException[type];
         this.message = message;
       }),
-      (checkTokenAndGetIndex = function(classList, token) {
+      (checkTokenAndGetIndex = function (classList, token) {
         if (token === '') {
           throw new DOMEx(
             'SYNTAX_ERR',
@@ -59,38 +59,38 @@ if (
         }
         return arrIndexOf.call(classList, token);
       }),
-      (ClassList = function(elem) {
+      (ClassList = function (elem) {
         var trimmedClasses = strTrim.call(elem.className),
           classes = trimmedClasses ? trimmedClasses.split(/\s+/) : [];
         for (var i = 0, len = classes.length; i < len; i++) {
           this.push(classes[i]);
         }
-        this._updateClassName = function() {
+        this._updateClassName = function () {
           elem.className = this.toString();
         };
       }),
       (classListProto = ClassList[protoProp] = []),
-      (classListGetter = function() {
+      (classListGetter = function () {
         return new ClassList(this);
       });
     // Most DOMException implementations don't allow calling DOMException's toString()
     // on non-DOMExceptions. Error's toString() is sufficient here.
     DOMEx[protoProp] = Error[protoProp];
-    classListProto.item = function(i) {
+    classListProto.item = function (i) {
       return this[i] || null;
     };
-    classListProto.contains = function(token) {
+    classListProto.contains = function (token) {
       token += '';
       return checkTokenAndGetIndex(this, token) !== -1;
     };
-    classListProto.add = function(token) {
+    classListProto.add = function (token) {
       token += '';
       if (checkTokenAndGetIndex(this, token) === -1) {
         this.push(token);
         this._updateClassName();
       }
     };
-    classListProto.remove = function(token) {
+    classListProto.remove = function (token) {
       token += '';
       var index = checkTokenAndGetIndex(this, token);
       if (index !== -1) {
@@ -98,7 +98,7 @@ if (
         this._updateClassName();
       }
     };
-    classListProto.toggle = function(token) {
+    classListProto.toggle = function (token) {
       token += '';
       if (checkTokenAndGetIndex(this, token) === -1) {
         this.add(token);
@@ -106,7 +106,7 @@ if (
         this.remove(token);
       }
     };
-    classListProto.toString = function() {
+    classListProto.toString = function () {
       return this.join(' ');
     };
 
@@ -193,7 +193,7 @@ function updateSlides() {
   triggerLeaveEvent(curSlide - 1);
   triggerEnterEvent(curSlide);
 
-  window.setTimeout(function() {
+  window.setTimeout(function () {
     // Hide after the slide
     disableSlideFrames(curSlide - 2);
   }, 301);
@@ -460,10 +460,10 @@ function scaleSmallViewports() {
 function addEventListeners() {
   document.addEventListener('keydown', handleBodyKeyDown, false);
   var resizeTimeout;
-  window.addEventListener('resize', function() {
+  window.addEventListener('resize', function () {
     // throttle resize events
     window.clearTimeout(resizeTimeout);
-    resizeTimeout = window.setTimeout(function() {
+    resizeTimeout = window.setTimeout(function () {
       resizeTimeout = null;
       scaleSmallViewports();
     }, 50);
@@ -471,14 +471,14 @@ function addEventListeners() {
 
   // Force reset transform property of section.slides when printing page.
   // Use both onbeforeprint and matchMedia for compatibility with different browsers.
-  var beforePrint = function() {
+  var beforePrint = function () {
     var el = document.querySelector('section.slides');
     el.style.transform = '';
   };
   window.onbeforeprint = beforePrint;
   if (window.matchMedia) {
     var mediaQueryList = window.matchMedia('print');
-    mediaQueryList.addListener(function(mql) {
+    mediaQueryList.addListener(function (mql) {
       if (mql.matches) beforePrint();
     });
   }
@@ -561,7 +561,7 @@ function initialize() {
 if (!window['_DEBUG'] && document.location.href.indexOf('?debug') !== -1) {
   document.addEventListener(
     'DOMContentLoaded',
-    function() {
+    function () {
       // Avoid missing the DomContentLoaded event
       window['_DCL'] = true;
     },
@@ -589,7 +589,7 @@ function setupNotesSync() {
   function setupPlayResizeSync() {
     var out = document.getElementsByClassName('output');
     for (var i = 0; i < out.length; i++) {
-      $(out[i]).bind('resize', function(event) {
+      $(out[i]).bind('resize', function (event) {
         if ($(event.target).hasClass('ui-resizable')) {
           localStorage.setItem('play-index', i);
           localStorage.setItem('output-style', out[i].style.cssText);

@@ -1,0 +1,3 @@
+$ GOARCH=386 go run examples/int.go
+32 bits
+32 bits

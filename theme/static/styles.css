@@ -80,8 +80,8 @@
     -webkit-transition: -webkit-transform 0.3s ease-out;
   }
   .slides.layout-widescreen > article {
-    margin-left: -550px;
-    width: 1100px;
+    /* margin-left: -550px;
+    width: 1500px; */
   }
   .slides.layout-faux-widescreen > article {
     margin-left: -550px;
@@ -396,7 +396,11 @@ code {
   font-size: 95%;
   font-family: 'Droid Sans Mono', 'Courier New', monospace;
 
-  color: black;
+  padding: .2em .4em;
+  margin: 0;
+  font-size: 85%;
+  background-color: rgba(27,31,35,.05);
+  border-radius: 6px;
 }
 
 article > .image,
@@ -556,4 +560,30 @@ figcaption {
   -o-border-radius: 10px;
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;
+}
+
+.slide-area {
+  display: none;
+}
+
+.emphasize {
+  color: red;
+  font-weight: bold;
+}
+
+blockquote {
+  background: #f9f9f9;
+  border-left: 10px solid #ccc;
+  margin: 1.5em 10px;
+  padding: 0.5em 10px;
+}
+blockquote:before {
+  color: #ccc;
+  font-size: 4em;
+  line-height: 0.1em;
+  margin-right: 0.25em;
+  vertical-align: -0.4em;
+}
+blockquote p {
+  display: inline;
 }

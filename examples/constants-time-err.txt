@@ -1,0 +1,2 @@
+./prog.go:19:28: invalid operation: time.Second * sleepSeconds
+ (mismatched types time.Duration and int)
