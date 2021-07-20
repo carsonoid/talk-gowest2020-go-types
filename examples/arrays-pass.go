@@ -3,16 +3,14 @@ package main
 import "fmt"
 
 func main() {
-	var bools [5]bool
-	fmt.Println(bools)
-
-	changeBoolsToTrue(bools)
-	fmt.Println(bools)
+	var arr [3]bool
+	changeToTrue(arr)
+	fmt.Println(arr)
 }
 
-func changeBoolsToTrue(bools [5]bool) {
-	for i := range bools {
-		bools[i] = true
+func changeToTrue(arr [3]bool) {
+	for i := range arr {
+		arr[i] = true
 	}
 }
 

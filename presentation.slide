@@ -1,7 +1,5 @@
 # All Types of Go Types
 
-GoWest 2020
-
 Carson Anderson
 DevX Engineer, Weave
 @carson_ops
@@ -23,7 +21,7 @@ https://github.com/carsonoid/talk-gowest2020-go-types
 
 ## Bools
 
-## How big is a bool?
+## Q: How big is a bool?
 
 : We are starting simple, but this shows that even seemingly easy assumptions can be wrong
 
@@ -52,6 +50,12 @@ So really...
 ## Interesting Golang Type Discoveries
 
 1. `bool` can be **more than one bit**
+
+## Q: Int Or IntXX?
+
+What are are these sized `int` types and when should I use them?
+
+.play examples/int-example.go /^func main/,/^}
 
 ## IntXX Types Occurances
 
@@ -178,6 +182,8 @@ Go effectively does this for us during compilation
 
 .play examples/constants-time-4.go /^func main/,/^}
 
+Fun fact: There are still 3 untyped constants in this code!
+
 ## Interesting Golang Type Discoveries
 
 1. `bool` can be **more than one bit**
@@ -249,6 +255,12 @@ They have a fixed length and can be indexed to get the value at any point in the
 
 : .play examples/arrays-pass.go /^func main/,/END OMIT/
 
+## Array Size?
+
+So when I pass an array, how much data do I pass? All of it!
+
+.play -edit examples/array-copy.go /^func main/,/^}/
+
 ## Slices
 
 Slices are a convenience layer on top of arrays, but they are backed by arrays.
@@ -263,7 +275,7 @@ Each slice header can be thought of like a struct with the following composition
 
 ## Slice Sizes
 
-So when I pass a slice? How much data am I passing?
+So when I pass a slice, how much data am I passing?
 
 .play examples/slices-sizes.go /^func main/,/^}
 
@@ -323,6 +335,12 @@ Strings are Immutable, so they don't need a `cap`
 The size of the header + the length of the string:
 
 .play examples/strings-slice-comparison-2.go /^func main/,/^}
+
+## What happens when I []byte a string?
+
+You make a copy!
+
+.play examples/strings-slice-comparison-3.go /^func main/,/^}
 
 ## String & []byte summary
 
